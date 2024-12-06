@@ -57,6 +57,13 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      // console.log(`newuser : `, newUser);
+      const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    });
+
     app.delete("/movies/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
