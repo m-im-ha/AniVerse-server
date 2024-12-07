@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const database = client.db("movieDB");
     const movieCollection = database.collection("movies");
     const userCollection = database.collection("users");
@@ -71,7 +71,7 @@ async function run() {
 
     app.post("/movies", async (req, res) => {
       const newMovie = req.body;
-      console.log(newMovie);
+      // console.log(newMovie);
       const result = await movieCollection.insertOne(newMovie);
       res.send(result);
     });
@@ -129,7 +129,7 @@ async function run() {
       const { userId } = req.params; // Extract userId from URL params
       const { movieId } = req.body; // Extract movieId from request body
     
-      console.log("Received userId:", userId); // Log userId for debugging
+      // console.log("Received userId:", userId);
     
       // Validate userId
       if (!ObjectId.isValid(userId)) {
@@ -185,10 +185,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -201,5 +201,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`server is running on the ${PORT}`);
+  // console.log(`server is running on the ${PORT}`);
 });
