@@ -130,6 +130,33 @@ async function run() {
       }
     });
 
+    app.delete("/favorites/:userId/:movieId", async (req, res) => {
+      const { userId, movieId } = req.params;
+    
+      // Validate userId
+      if (!ObjectId.isValid(userId) || !ObjectId.isValid(movieId)) {
+        return res.status(400).send({ message: "Invalid ID format" });
+      }
+    
+      try {
+        const result = await userCollection.updateOne(
+          { _id: new ObjectId(userId) },
+          { $pull: { favorites: movieId } } // Remove the movieId from favorites array
+        );
+    
+        if (result.modifiedCount > 0) {
+          res.status(200).send({ message: "Movie removed from favorites" });
+        } else {
+          res.status(404).send({ message: "User or movie not found in favorites" });
+        }
+      } catch (error) {
+        console.error("Error removing favorite:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
+    
+
+
     // app.patch("/users", async (req, res) => {
     //   const email = req.body.email;
     //   const filter = { email };
