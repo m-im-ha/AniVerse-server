@@ -50,6 +50,25 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/favorites/:userId", async (req, res) => {
+      const { userId } = req.params;
+      try {
+        const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+        if (user && user.favorites) {
+          const movieIds = user.favorites.map((id) => new ObjectId(String(id)));
+          const movies = await movieCollection.find({ _id: { $in: movieIds } }).toArray();
+          res.status(200).send(movies);
+        } else {
+          res.status(404).send({ message: "User or favorites not found" });
+        }
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
+    
+    
+
     app.post("/movies", async (req, res) => {
       const newMovie = req.body;
       console.log(newMovie);
@@ -57,12 +76,71 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/users", async (req, res) => {
+      const { email } = req.query; // Extract email from query params
+      if (!email) {
+        return res.send({ message: "Email query parameter is required" });
+      }
+    
+      try {
+        const user = await userCollection.findOne({ email }); // Search for user by email
+        if (user) {
+          res.send(user); // Return the user object
+        } else {
+          res.send({ message: "User not found" });
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        res.send({ message: "Internal Server Error" });
+      }
+    });
+    
+
     app.post("/users", async (req, res) => {
       const newUser = req.body;
       // console.log(`newuser : `, newUser);
       const result = await userCollection.insertOne(newUser);
       res.send(result);
     });
+
+    app.post("/favorites/:userId", async (req, res) => {
+      const { userId } = req.params; // Extract userId from URL params
+      const { movieId } = req.body; // Extract movieId from request body
+    
+      console.log("Received userId:", userId); // Log userId for debugging
+    
+      // Validate userId
+      if (!ObjectId.isValid(userId)) {
+        return res.send({ message: "Invalid user ID format" });
+      }
+    
+      try {
+        const result = await userCollection.updateOne(
+          { _id: new ObjectId(userId) },
+          { $addToSet: { favorites: movieId } } // $addToSet avoids duplicate entries
+        );
+        if (result.modifiedCount > 0) {
+          res.send({ message: "Movie added to favorites" });
+        } else {
+          res.send({ message: "User not found or movie already in favorites" });
+        }
+      } catch (error) {
+        console.error("Error adding to favorites:", error);
+        res.send({ message: "Internal Server Error" });
+      }
+    });
+
+    // app.patch("/users", async (req, res) => {
+    //   const email = req.body.email;
+    //   const filter = { email };
+    //   const updatedDoc = {
+    //     $set: {
+    //       lastSignInTime: req.body?.lastSignInTime,
+    //     },
+    //   };
+    //   const result = await userCollection.updateOne(filter, updatedDoc);
+    //   res.send(result);
+    // });
 
     app.delete("/movies/:id", async (req, res) => {
       const id = req.params.id;
