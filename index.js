@@ -57,13 +57,13 @@ async function run() {
         if (user && user.favorites) {
           const movieIds = user.favorites.map((id) => new ObjectId(String(id)));
           const movies = await movieCollection.find({ _id: { $in: movieIds } }).toArray();
-          res.status(200).send(movies);
+          res.send(movies);
         } else {
-          res.status(404).send({ message: "User or favorites not found" });
+          res.send({ message: "User or favorites not found" });
         }
       } catch (error) {
         console.error("Error fetching favorites:", error);
-        res.status(500).send({ message: "Internal Server Error" });
+        res.send({ message: "Internal Server Error" });
       }
     });
     
@@ -87,19 +87,21 @@ async function run() {
         );
     
         if (result.modifiedCount > 0) {
-          res.send({ message: "Movie updated successfully" });
+          const updatedData = await movieCollection.findOne({ _id: new ObjectId(id) });
+          res.send(updatedData);
         } else {
-          res.status(404).send({ message: "Movie not found or not updated" });
+          res.send({ message: "Movie not found or not updated" });
         }
       } catch (error) {
         console.error("Error updating movie:", error);
-        res.status(500).send({ message: "Internal Server Error" });
+        res.send({ message: "Internal Server Error" });
       }
     });
     
+    
 
     app.get("/users", async (req, res) => {
-      const { email } = req.query; // Extract email from query params
+      const { email } = req.query;
       if (!email) {
         return res.send({ message: "Email query parameter is required" });
       }
@@ -167,13 +169,13 @@ async function run() {
         );
     
         if (result.modifiedCount > 0) {
-          res.status(200).send({ message: "Movie removed from favorites" });
+          res.send({ message: "Movie removed from favorites" });
         } else {
-          res.status(404).send({ message: "User or movie not found in favorites" });
+          res.send({ message: "User or movie not found in favorites" });
         }
       } catch (error) {
         console.error("Error removing favorite:", error);
-        res.status(500).send({ message: "Internal Server Error" });
+        res.send({ message: "Internal Server Error" });
       }
     });
 
