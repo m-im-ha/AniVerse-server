@@ -45,7 +45,7 @@ async function run() {
       const cursor = movieCollection
         .find()
         .sort({ movieRating: -1 })
-        .limit(6);
+        .limit(8);
       const result = await cursor.toArray();
       res.send(result);
     });
